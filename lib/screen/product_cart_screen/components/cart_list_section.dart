@@ -1,15 +1,12 @@
-import 'dart:math';
-import 'package:e_commerce_flutter/src/model/product.dart';
+import '../../../utility/utility_extention.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../../../src/controller/product_controller.dart';
+import 'package:flutter_cart/model/cart_model.dart';
 
 
 class CartListSection extends StatelessWidget {
-  final List<Product> cartProducts;
-  final ProductController controller = Get.find<ProductController>();
+  final List<CartModel> cartProducts;
 
-  CartListSection({
+  const CartListSection({
     super.key,
     required this.cartProducts,
   });
@@ -20,7 +17,7 @@ class CartListSection extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: cartProducts.mapWithIndex((index, _) {
-            Product product = cartProducts[index];
+            CartModel cartItem = cartProducts[index];
             return Container(
               width: double.infinity,
               margin: const EdgeInsets.all(15),
@@ -39,7 +36,7 @@ class CartListSection extends StatelessWidget {
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                      color: Colors.primaries[index],
                     ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -47,10 +44,23 @@ class CartListSection extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         child: Padding(
                           padding: const EdgeInsets.all(5),
-                          child: Image.asset(
-                            product.images[0],
+                          child: Image.network(
+                            cartItem.productImages.safeElementAt(0) ?? '',
                             width: 100,
                             height: 90,
+                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                      : null, // Progress indicator.
+                                ),
+                              );
+                            },
+                            errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                              return const Icon(Icons.error, color: Colors.red);
+                            },
                           ),
                         ),
                       ),
@@ -60,7 +70,7 @@ class CartListSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        product.name,
+                        cartItem.productName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -70,7 +80,7 @@ class CartListSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        controller.getCurrentSize(product),
+                        '${cartItem.quantity}',
                         style: TextStyle(
                           color: Colors.black.withOpacity(0.5),
                           fontWeight: FontWeight.w400,
@@ -78,7 +88,7 @@ class CartListSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        controller.isPriceOff(product) ? "\$${product.off}" : "\$${product.price}",
+                        "\$${cartItem.variants.safeElementAt(0)?.price}",
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 23,
@@ -98,14 +108,16 @@ class CartListSection extends StatelessWidget {
                       children: [
                         IconButton(
                           splashRadius: 10.0,
-                          onPressed: () => controller.decreaseItemQuantity(product),
+                          onPressed: () {
+                            //TODO: should complete call updateCart decrement
+                          },
                           icon: const Icon(
                             Icons.remove,
                             color: Color(0xFFEC6813),
                           ),
                         ),
                         Text(
-                          '${product.quantity}',
+                          '${cartItem.quantity}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -113,7 +125,9 @@ class CartListSection extends StatelessWidget {
                         ),
                         IconButton(
                           splashRadius: 10.0,
-                          onPressed: () => controller.increaseItemQuantity(product),
+                          onPressed: () {
+                            //TODO: should complete updateCart increment
+                          },
                           icon: const Icon(Icons.add, color: Color(0xFFEC6813)),
                         ),
                       ],
@@ -128,10 +142,3 @@ class CartListSection extends StatelessWidget {
     );
   }
 }
-
-extension IterableExtension<T> on Iterable<T> {
-  Iterable<E> mapWithIndex<E>(E Function(int index, T value) f) {
-    return Iterable.generate(length).map((i) => f(i, elementAt(i)));
-  }
-}
-

@@ -1,8 +1,9 @@
-import 'package:get/get.dart';
+import 'provider/favorite_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../widget/product_grid_view.dart';
-import '../../src/controller/product_controller.dart';
-import '../product_cart_screen/cart_screen.dart';
+import '../../utility/app_color.dart';
+
 
 
 class FavoriteScreen extends StatelessWidget {
@@ -10,25 +11,25 @@ class FavoriteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    controller.getFavoriteItems();
+    Future.delayed(Duration.zero, () {
+      //TODO: should complete call loadFavoriteItems
+    });
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Favorites",
-          style: Theme.of(context).textTheme.displayLarge,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColor.darkOrange),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: GetBuilder(
-          builder: (ProductController controller) {
-            return ProductGridView(
-              items: controller.filteredProducts,
-              likeButtonPressed: (index) => controller.isFavorite(index),
-              isPriceOff: (product) => controller.isPriceOff(product),
-            );
-          },
-        ),
+          padding: const EdgeInsets.all(20),
+          child: Consumer<FavoriteProvider>(
+            builder: (context, favoriteProvider, child) {
+              return ProductGridView(
+                items: favoriteProvider.favoriteProduct,
+              );
+            },
+          )
       ),
     );
   }

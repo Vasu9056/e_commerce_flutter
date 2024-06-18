@@ -1,21 +1,23 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
-import '../utility/constants.dart';
+import '../utility/app_color.dart';
 
 class MultiSelectDropDown<T> extends StatelessWidget {
+  final String? hintText;
   final List<T> items;
   final Function(List<T>) onSelectionChanged;
   final String Function(T) displayItem;
   final List<T> selectedItems;
 
   const MultiSelectDropDown({
-    Key? key,
+    super.key,
     required this.items,
     required this.onSelectionChanged,
     required this.displayItem,
     required this.selectedItems,
-  }) : super(key: key);
+    this.hintText = 'Select Items',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class MultiSelectDropDown<T> extends StatelessWidget {
           child: DropdownButton2<T>(
             isExpanded: true,
             hint: Text(
-              'Select Items',
+              '$hintText',
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).hintColor,
@@ -95,7 +97,7 @@ class MultiSelectDropDown<T> extends StatelessWidget {
               padding: EdgeInsets.only(left: 16, right: 8),
               height: 50,
               decoration: BoxDecoration(
-                color: secondaryColor,
+                color: AppColor.lightGrey,
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8.0),
               ),
